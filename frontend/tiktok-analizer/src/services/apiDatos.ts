@@ -20,8 +20,8 @@ export type ListarResponse =
   | { success: false; message: string };
 
 export type ObtenerResponse =
-  | { success: true; documento: DatosDocumento }
-  | { success: false; message: string };
+  | { success: true, documento: DatosDocumento }
+  | { success: false, message: string };
 
 // Listar análisis por correo (API 3000)
 export async function listarPorEmail(userEmail: string) {
@@ -30,9 +30,9 @@ export async function listarPorEmail(userEmail: string) {
   return data;
 }
 
-// Obtener análisis por correo + id (API 3000)
-export async function obtenerPorEmailYId(userEmail: string, id: string) {
-  const url = `/api/datos/${encodeURIComponent(userEmail)}/${encodeURIComponent(id)}`;
+// Obtener análisis por id (API 3000)
+export async function obtenerAnalisisId( id: string) {
+  const url = `/api/analisisResult/${encodeURIComponent(id)}`;
   const { data } = await nodeApi.get<ObtenerResponse>(url);
   return data;
 }

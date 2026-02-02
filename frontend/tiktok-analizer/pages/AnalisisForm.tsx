@@ -3,6 +3,7 @@ import { useAuth } from "../src//context/AuthContext"
 import { toast } from "sonner"
 import {LoadingOverlay} from "../src/components/LoadingOverlay"
 import { isValidTikTokUrl } from "../src/utils/url"
+import { crearAnalisis } from "../src/services/"
 import { useNavigate } from "react-router-dom"
 import { Box, Button, Heading, Input, FormControl, FormLabel, Text } from "@chakra-ui/react"
 
@@ -26,10 +27,10 @@ export default function AnalisisForm() {
     setLoading(true)
     try {
       const res = await crearAnalisis({
-        userId: user!.uid,
-        nombreAnalisis,
-        videoUrl,
-        commentsPerPost: 5,
+        userId: user?.email,             // correo del usuario
+        nombreanalisis: nombreAnalisis,   // nombre del análisis
+        videoId: videoUrl,          // id del video
+        payload: { commentsPerPost: 5 }          // datos adicionales,
       })
       if (res.success) {
         toast.success("Análisis creado exitosamente")

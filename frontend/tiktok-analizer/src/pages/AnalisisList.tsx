@@ -66,7 +66,7 @@ export const AnalisisList: React.FC = () => {
       setLoading(true);
       setError(null);
       try {
-        const res = await listar(user.uid);
+        const res = await listar(user.email!);
         const data = Array.isArray(res) ? res : res?.data ?? [];
         setRows(data);
       } catch (err: any) {

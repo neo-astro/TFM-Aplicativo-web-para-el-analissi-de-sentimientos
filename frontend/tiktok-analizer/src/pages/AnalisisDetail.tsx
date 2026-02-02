@@ -1,68 +1,258 @@
-// /src/pages/AnalisisList.tsx
-import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
-import { Heading, SimpleGrid, Box, Text } from "@chakra-ui/react";
-import { useAuth } from "../context/AuthContext";
+// src/pages/AnalisisDetail.tsx
+import { useEffect, useMemo, useState } from "react";
+import { useParams } from "react-router-dom";
+import {
+  Box,
+  Heading,
+  SimpleGrid,
+  Stat,
+  StatLabel,
+  StatNumber,
+  Select,
+  Table,
+  Thead,
+  Tbody,
+  Tr,
+  Th,
+  Td,
+  Spinner,
+} from "@chakra-ui/react";
+
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  PieChart,
+  Pie,
+  Cell,
+  ResponsiveContainer,
+} from "recharts";
+
 import * as apiDatos from "../services/apiDatos";
 
-interface AnalisisItem {
-  id: string;
-  nombreanalisis: string;
-  fecha?: string;
-  total_comentarios?: number;
-  dominio_principal?: string;
-  sentimiento_predominante?: string;
-}
+const COLORS = {
+  neutral: "#3182CE",
+  positivo: "#38A169",
+  negativo: "#E53E3E",
+};
 
-export default function AnalisisList() {
-  const { user } = useAuth();
-  const userEmail = user?.email ?? "";
-  const [items, setItems] = useState<AnalisisItem[]>([]);
-  const [loading, setLoading] = useState<boolean>(false);
-  const [error, setError] = useState<string | null>(null);
+export default function AnalisisDetail() {
+  const { id } = useParams<{ id: string }>();
+
+  const [resultado, setResultado] = useState<any>(null);
+  const [loading, setLoading] = useState(false);
+  const [sentimientoActivo, setSentimientoActivo] = useState<string>("todos");
 
   useEffect(() => {
+    if (!id) return;
+
     const load = async () => {
-      if (!userEmail) return;
       setLoading(true);
-      setError(null);
-      try {
-        const res = await apiDatos.listarPorEmail(userEmail);
-        setItems(res.success ? res.documentos : []);
-      } catch (err: any) {
-        setError(err?.response?.data?.message ?? err.message ?? "Error desconocido");
-      } finally {
-        setLoading(false);
-      }
+      const res = await apiDatos.obtenerAnalisisId(id);
+      setResultado(res.documento.resultado);
+      setLoading(false);
     };
+
     load();
-  }, [userEmail]);
+  }, [id]);
+
+  /** =======================
+   *  FILTRADO CENTRAL (CLAVE)
+   ======================= */
+  const comentariosFiltrados = useMemo(() => {
+    if (!resultado) return [];
+
+    if (sentimientoActivo === "todos") {
+      return resultado.resultados_detallados;
+    }
+
+    return resultado.resultados_detallados.filter(
+      (c: any) => c.sentimiento_final === sentimientoActivo
+    );
+  }, [resultado, sentimientoActivo]);
+
+  /** =======================
+   *  DATOS PARA GRÁFICAS
+   ======================= */
+  const barrasSentimiento = useMemo(() => {
+    if (!resultado) return [];
+
+    const base = {
+      neutral: 0,
+      positivo: 0,
+      negativo: 0,
+    };
+
+    comentariosFiltrados.forEach((c: any) => {
+      base[c.sentimiento_final]++;
+    });
+
+    return Object.entries(base).map(([k, v]) => ({
+      name: k,
+      value: v,
+    }));
+  }, [comentariosFiltrados]);
+
+  const dominiosData = useMemo(() => {
+    const dominioCount: any = {};
+
+    comentariosFiltrados.forEach((c: any) => {
+      Object.entries(c.scores_por_dominio).forEach(
+        ([dominio, valor]: any) => {
+          if (valor > 0) {
+            dominioCount[dominio] = (dominioCount[dominio] || 0) + 1;
+          }
+        }
+      );
+    });
+
+    return Object.entries(dominioCount).map(([k, v]) => ({
+      dominio: k,
+      total: v,
+    }));
+  }, [comentariosFiltrados]);
+
+  if (loading || !resultado) return <Spinner size="xl" />;
 
   return (
-    <div>
-      <Heading size="lg" color="brand.800" mb={4}>Tus análisis</Heading>
-      {loading && <div>Cargando...</div>}
-      {error && <div style={{ color: "red" }}>{error}</div>}
-      <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>
-        {items.map((it) => (
-          <Box key={it.id} bg="white" p={4} rounded="md" boxShadow="sm">
-            <Text fontWeight="semibold" color="brand.900">{it.nombreanalisis}</Text>
-            {it.fecha && <Text fontSize="sm" color="brand.700">Fecha: {it.fecha}</Text>}
-            {typeof it.total_comentarios === "number" && (
-              <Text fontSize="sm">Total de comentarios: {it.total_comentarios}</Text>
-            )}
-            {it.dominio_principal && (
-              <Text fontSize="sm">Dominio predominante: {it.dominio_principal}</Text>
-            )}
-            {it.sentimiento_predominante && (
-              <Text fontSize="sm">Sentimiento predominante: {it.sentimiento_predominante}</Text>
-            )}
-            <Link to={`/analisis/${it.id}`} style={{ color: "#1863ad", marginTop: 8, display: "inline-block" }}>
-              Ver detalles
-            </Link>
-          </Box>
-        ))}
+    <Box p={6}>
+      <Heading mb={6}>{resultado.nombreanalisis}</Heading>
+
+      {/* =======================
+          KPIs SUPERIORES
+         ======================= */}
+      <SimpleGrid columns={{ base: 1, md: 4 }} spacing={6} mb={8}>
+        <Stat>
+          <StatLabel>Total comentarios</StatLabel>
+          <StatNumber>{comentariosFiltrados.length}</StatNumber>
+        </Stat>
+
+        <Stat>
+          <StatLabel>Neutros</StatLabel>
+          <StatNumber>
+            {comentariosFiltrados.filter(
+              (c: any) => c.sentimiento_final === "neutral"
+            ).length}
+          </StatNumber>
+        </Stat>
+
+        <Stat>
+          <StatLabel>Positivos</StatLabel>
+          <StatNumber>
+            {comentariosFiltrados.filter(
+              (c: any) => c.sentimiento_final === "positivo"
+            ).length}
+          </StatNumber>
+        </Stat>
+
+        <Stat>
+          <StatLabel>Negativos</StatLabel>
+          <StatNumber>
+            {comentariosFiltrados.filter(
+              (c: any) => c.sentimiento_final === "negativo"
+            ).length}
+          </StatNumber>
+        </Stat>
       </SimpleGrid>
-    </div>
+
+      {/* =======================
+          FILTRO GLOBAL
+         ======================= */}
+      <Select
+        mb={6}
+        maxW="300px"
+        value={sentimientoActivo}
+        onChange={(e) => setSentimientoActivo(e.target.value)}
+      >
+        <option value="todos">Todos los sentimientos</option>
+        <option value="neutral">Neutral</option>
+        <option value="positivo">Positivo</option>
+        <option value="negativo">Negativo</option>
+      </Select>
+
+      {/* =======================
+          DASHBOARD DE GRÁFICAS
+         ======================= */}
+      <SimpleGrid columns={{ base: 1, md: 2 }} spacing={8} mb={10}>
+        {/* BARRAS SENTIMIENTO */}
+        <Box h={300}>
+          <Heading size="sm" mb={2}>
+            Distribución de sentimientos
+          </Heading>
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={barrasSentimiento}>
+              <XAxis dataKey="name" />
+              <YAxis />
+              <Tooltip />
+              <Bar dataKey="value">
+                {barrasSentimiento.map((d: any, i: number) => (
+                  <Cell key={i} fill={COLORS[d.name as keyof typeof COLORS]} />
+                ))}
+              </Bar>
+            </BarChart>
+          </ResponsiveContainer>
+        </Box>
+
+        {/* PIE SENTIMIENTO */}
+        <Box h={300}>
+          <Heading size="sm" mb={2}>
+            Proporción de sentimientos
+          </Heading>
+          <ResponsiveContainer width="100%" height="100%">
+            <PieChart>
+              <Pie data={barrasSentimiento} dataKey="value" label>
+                {barrasSentimiento.map((d: any, i: number) => (
+                  <Cell key={i} fill={COLORS[d.name as keyof typeof COLORS]} />
+                ))}
+              </Pie>
+              <Tooltip />
+            </PieChart>
+          </ResponsiveContainer>
+        </Box>
+
+        {/* BARRAS DOMINIOS */}
+        <Box h={300} gridColumn={{ md: "span 2" }}>
+          <Heading size="sm" mb={2}>
+            Actividad por dominio
+          </Heading>
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={dominiosData}>
+              <XAxis dataKey="dominio" />
+              <YAxis />
+              <Tooltip />
+              <Bar dataKey="total" fill="#805AD5" />
+            </BarChart>
+          </ResponsiveContainer>
+        </Box>
+      </SimpleGrid>
+
+      {/* =======================
+          TABLA DETALLADA
+         ======================= */}
+      <Heading size="md" mb={3}>
+        Comentarios analizados
+      </Heading>
+
+      <Table size="sm">
+        <Thead>
+          <Tr>
+            <Th>Comentario</Th>
+            <Th>Sentimiento</Th>
+            <Th>Score</Th>
+          </Tr>
+        </Thead>
+        <Tbody>
+          {comentariosFiltrados.map((c: any, i: number) => (
+            <Tr key={i}>
+              <Td>{c.comentario}</Td>
+              <Td>{c.sentimiento_final}</Td>
+              <Td>{c.score_modelo}</Td>
+            </Tr>
+          ))}
+        </Tbody>
+      </Table>
+    </Box>
   );
 }

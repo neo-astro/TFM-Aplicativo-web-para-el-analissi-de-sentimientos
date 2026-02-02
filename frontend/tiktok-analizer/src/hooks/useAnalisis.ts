@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import { crearAnalisis, type CrearAnalisisPayload } from "../services/api"; // API 8080
-import { listarPorEmail, obtenerPorEmailYId } from "../services/apiDatos";   // API 3000
+import { crearAnalisis, type CrearAnalisisPayload } from "../services/apiPython"; // API 8080
+import { listarPorEmail, obtenerAnalisisId } from "../services/apiDatos";   // API 3000
 
 export const useAnalisis = () => {
   const [loading, setLoading] = useState(false);
@@ -37,11 +37,11 @@ export const useAnalisis = () => {
   };
 
   // Obtener análisis por id (API 3000)
-  const obtener = async (userEmail: string, id: string) => {
+  const obtener = async ( id: string) => {
     setLoading(true);
     setError(null);
     try {
-      const res = await obtenerPorEmailYId(userEmail, id);
+      const res = await obtenerAnalisisId(id);
       setLoading(false);
       return res;
     } catch (err: any) {
@@ -65,7 +65,7 @@ export const useAnalisisDetail = (userEmail: string, docId: string) => {
       if (!userEmail || !docId) return;
       setLoading(true);
       try {
-        const res = await obtenerPorEmailYId(userEmail, docId);
+        const res = await obtenerAnalisisId(docId);
         setData(res);
       } catch (err: any) {
         setError(err?.response?.data?.message ?? err.message ?? "Error desconocido");

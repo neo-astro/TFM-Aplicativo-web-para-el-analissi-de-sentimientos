@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { obtenerPorEmailYId } from "../services/apiDatos";
+import { obtenerAnalisisId } from "../services/apiDatos";
 import type { DatosDocumento } from "../services/apiDatos";
 
 /**
@@ -24,7 +24,7 @@ export function useAnalisisDetail(userEmail?: string | null, analisisId?: string
       setLoading(true);
       setError(null);
       try {
-        const res = await obtenerPorEmailYId(userEmail, analisisId);
+        const res = await obtenerAnalisisId( analisisId);
         if (!mounted) return;
         if (res && (res as any).success) {
           setItem((res as any).documento ?? null);

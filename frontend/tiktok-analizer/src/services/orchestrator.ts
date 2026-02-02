@@ -33,7 +33,8 @@ export type AnalizarResponse = {
 export type DatosRequest = {
   userId: string; // aquí envías el email del usuario
   nombreanalisis: string;
-  videoId: string;
+  videoId:  string;
+  videoUrl: string;
   payload: Omit<AnalizarResponse, "success">;
   resultado: { positivos: number; negativos: number; neutros: number };
 };
@@ -109,13 +110,28 @@ export async function runFullAnalysis({
       userId: userEmail,
       nombreanalisis: nombreAnalisis,
       videoId,
+      videoUrl,
       payload: payloadForStore,
       resultado: { positivos, negativos, neutros },
     };
-
     // 5) Node: persistir datos
-    await nodeApi.post("/api/datos", datosPayload, { headers: { "Content-Type": "application/json" } });
+    try {
+      const storeRes = await nodeApi.post<{ success: boolean; documento?: any; error?: string }>("/api/datos", datosPayload, {
+        headers: { "Content-Type": "application/json" },
+      });
 
+      if (!storeRes.data?.success) {
+        return {
+          success: false,
+          message: "Error al persistir datos en Node API: " + (storeRes.data?.error ?? "desconocido"),
+        };
+      }
+    } catch (err: any) {
+      return {
+        success: false,
+        message: "Error al persistir datos en Node API: " + (err?.response?.data?.error ?? err?.message ?? "desconocido"),
+      };
+    }
     return { success: true, data: datosPayload };
   } catch (err: any) {
     // Manejo simple de errores; puedes enriquecer con logs o reintentos
