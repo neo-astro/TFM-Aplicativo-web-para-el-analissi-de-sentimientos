@@ -1,6 +1,7 @@
 // /src/App.tsx
 import React from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { ChakraProvider } from '@chakra-ui/react';
 
 // Contexto de autenticación
 import { AuthProvider } from "./context/AuthContext";
@@ -83,7 +84,9 @@ export const App: React.FC = () => {
             element={
               <ProtectedRoute>
                 <AppLayout>
-                  <AnalisisDetail />
+                  <ChakraProvider>
+                    <AnalisisDetail />
+                  </ChakraProvider>
                 </AppLayout>
               </ProtectedRoute>
             }

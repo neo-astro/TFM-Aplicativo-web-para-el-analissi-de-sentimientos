@@ -1,8 +1,3 @@
-# =========================================================
-# analisis_api.py
-# API REST – Análisis semántico enriquecido (tesis)
-# =========================================================
-
 import re
 import unicodedata
 from collections import Counter
@@ -14,6 +9,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from nltk.corpus import stopwords
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
+from sentence_transformers import SentenceTransformer
+from bertopic import BERTopic
+import numpy as np
 
 # =========================================================
 # DESCARGA DE RECURSOS NLTK (solo 1 vez)
@@ -169,10 +167,20 @@ def normalizar_semantica(sem_scores: dict) -> float:
     return max(-1.0, min(1.0, total / abs(total)))
 
 def clasificacion_final(modelo_score, sem_scores):
+    # Normalizamos los puntajes semánticos
     sem_norm = normalizar_semantica(sem_scores)
+    
+    # Pesos ajustados para darle más importancia al modelo
     score_final = (modelo_score * ALPHA) + (sem_norm * BETA)
 
-    if score_final > 0.2:
+    # Si el sentimiento del modelo es negativo, incluso si la semántica es neutral, consideramos el sentimiento negativo
+    if modelo_score < -0.1:
+        return "negativo"
+    # Si el modelo es muy positivo, consideramos el sentimiento positivo
+    elif modelo_score > 0.1:
+        return "positivo"
+    # Si el modelo no es tan claro, dejamos que la semántica decida
+    elif score_final > 0.2:
         return "positivo"
     elif score_final < -0.2:
         return "negativo"
@@ -180,18 +188,43 @@ def clasificacion_final(modelo_score, sem_scores):
         return "neutral"
 
 # =========================================================
-# PIPELINE PRINCIPAL
+# CÁLCULOS DE POLARIZACIÓN Y RIESGO REPUTACIONAL
+# =========================================================
+
+def calcular_polarizacion(comentarios: List[str], sentimientos: List[str]) -> float:
+    sentiment_values = {"positivo": 1, "neutral": 0, "negativo": -1}
+    sentiment_scores = [sentiment_values[sentimiento] for sentimiento in sentimientos]
+    return np.var(sentiment_scores)
+
+def calcular_riesgo(comentarios: List[str], sentimientos: List[str]) -> str:
+    sentimiento_final = "bajo"
+    if "negativo" in sentimientos:
+        sentimiento_final = "alto"
+    return sentimiento_final
+
+# =========================================================
+# MODELO DE ANÁLISIS COMPLETO
 # =========================================================
 
 def analizar_comentarios(comentarios: List[str]):
     resultados = []
+    sentimientos = []
 
     for texto_original in comentarios:
         texto = normalizar_texto(texto_original)
 
+        # Análisis de sentimiento básico
         sent_mod, score_mod = sentimiento_modelo(texto)
+        sentimientos.append(sent_mod)
+        
+        # Análisis semántico contextual
         sem_scores = sentimiento_semantico(texto)
+        
+        # Detección de afiliación
         afiliacion = detectar_afiliacion(texto)
+
+        # Análisis final de sentimiento
+        sentimiento_final = clasificacion_final(score_mod, sem_scores)
 
         resultados.append({
             "comentario": texto_original,
@@ -199,14 +232,21 @@ def analizar_comentarios(comentarios: List[str]):
             "score_modelo": score_mod,
             "scores_por_dominio": sem_scores,
             "afiliacion": afiliacion,
-            "sentimiento_final": clasificacion_final(score_mod, sem_scores)
+            "sentimiento_final": sentimiento_final
         })
 
+    # Resumen de sentimiento
     resumen = Counter(r["sentimiento_final"] for r in resultados)
+
+    # Cálculos adicionales de polarización y riesgo
+    polarizacion = calcular_polarizacion(comentarios, sentimientos)
+    riesgo = calcular_riesgo(comentarios, sentimientos)
 
     return {
         "total_comentarios": len(resultados),
         "resumen_sentimientos": dict(resumen),
+        "polarizacion": polarizacion,
+        "riesgo": riesgo,
         "resultados_detallados": resultados
     }
 
@@ -234,6 +274,7 @@ app.add_middleware(
 
 @app.post("/api/analizar")
 def analizar(request: ComentariosRequest):
+    print("Recibidos comentarios para análisis:", len(request.comentarios))
     if not request.comentarios:
         raise HTTPException(status_code=400, detail="Lista de comentarios vacía")
 
