@@ -1,0 +1,13 @@
+fastapi
+uvicorn
+pydantic
+nltk
+numpy
+transformers
+torch
+sentence-transformers
+bertopic
+scikit-learn
+umap-learn
+hdbscan
+pandas

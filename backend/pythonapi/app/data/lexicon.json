@@ -1,0 +1,134 @@
+{
+  "negations": ["no", "nunca", "jamas", "ni", "sin"],
+  "global": {
+    "positive_phrases": [
+      { "text": "buen producto", "weight": 2 },
+      { "text": "muy rica comida", "weight": 2 },
+      { "text": "excelente servicio", "weight": 2 },
+      { "text": "lo recomiendo", "weight": 2 },
+      { "text": "me encanta", "weight": 1.5 },
+      { "text": "el mejor presidente", "weight": 2 },
+      { "text": "muy buena calidad", "weight": 2 },
+      { "text": "super recomendado", "weight": 2 },
+      { "text": "una maravilla", "weight": 1.5 },
+      { "text": "me fascina", "weight": 1.5 }
+    ],
+    "negative_phrases": [
+      { "text": "mala calidad", "weight": 2 },
+      { "text": "no sirve", "weight": 2 },
+      { "text": "pesimo servicio", "weight": 2 },
+      { "text": "una estafa", "weight": 2 },
+      { "text": "muy malo", "weight": 1.5 },
+      { "text": "no lo recomiendo", "weight": 2 },
+      { "text": "muy decepcionado", "weight": 1.5 },
+      { "text": "no me gusto", "weight": 1.5 },
+      { "text": "malisimo", "weight": 2 },
+      { "text": "pura mentira", "weight": 1.5 }
+    ],
+    "positive_words": [
+      "excelente",
+      "genial",
+      "increible",
+      "recomendado",
+      "bueno",
+      "perfecto",
+      "delicioso",
+      "maravilloso",
+      "fantastico",
+      "agradable",
+      "confiable"
+    ],
+    "negative_words": [
+      "horrible",
+      "pesimo",
+      "malo",
+      "terrible",
+      "defectuoso",
+      "caro",
+      "decepcionado",
+      "engañoso",
+      "malisimo",
+      "flojo"
+    ]
+  },
+  "domains": {
+    "ventas": {
+      "positive_phrases": [
+        { "text": "buen precio", "weight": 1.5 },
+        { "text": "vale la pena", "weight": 2 },
+        { "text": "buena calidad", "weight": 2 },
+        { "text": "excelente oferta", "weight": 1.5 },
+        { "text": "envio rapido", "weight": 1.5 }
+      ],
+      "negative_phrases": [
+        { "text": "muy caro", "weight": 2 },
+        { "text": "mala calidad", "weight": 2 },
+        { "text": "no vale la pena", "weight": 2 },
+        { "text": "no llega", "weight": 2 },
+        { "text": "envio lento", "weight": 1.5 }
+      ],
+      "positive_words": ["barato", "oferta", "economico", "garantia", "reembolso", "descuento"],
+      "negative_words": ["caro", "estafa", "defectuoso", "fraude", "pesimo", "demora"]
+    },
+    "politica": {
+      "positive_phrases": [
+        { "text": "el mejor presidente", "weight": 2 },
+        { "text": "gran gestion", "weight": 2 },
+        { "text": "todo mi apoyo", "weight": 2 },
+        { "text": "excelente lider", "weight": 2 }
+      ],
+      "negative_phrases": [
+        { "text": "pesimo gobierno", "weight": 2 },
+        { "text": "gobierno corrupto", "weight": 2 },
+        { "text": "no sirve", "weight": 1.5 }
+      ],
+      "positive_words": ["lider", "gestion", "apoyo", "voto", "transparencia"],
+      "negative_words": ["corrupto", "mentiroso", "dictador", "fraude", "incompetente"]
+    },
+    "reseñas": {
+      "positive_phrases": [
+        { "text": "me gusto", "weight": 1.5 },
+        { "text": "funciona bien", "weight": 1.5 },
+        { "text": "excelente producto", "weight": 2 },
+        { "text": "muy recomendable", "weight": 1.5 }
+      ],
+      "negative_phrases": [
+        { "text": "no funciona", "weight": 2 },
+        { "text": "defectuoso", "weight": 2 },
+        { "text": "decepcionado", "weight": 1.5 }
+      ],
+      "positive_words": ["recomendado", "util", "cumple", "durable", "resistente"],
+      "negative_words": ["malo", "fallo", "rotura", "reclamo", "defecto"]
+    },
+    "comida": {
+      "positive_phrases": [
+        { "text": "muy rica comida", "weight": 2 },
+        { "text": "sabor excelente", "weight": 2 },
+        { "text": "me encanto", "weight": 1.5 },
+        { "text": "sabor espectacular", "weight": 2 }
+      ],
+      "negative_phrases": [
+        { "text": "muy mala comida", "weight": 2 },
+        { "text": "sabor horrible", "weight": 2 },
+        { "text": "me enfermo", "weight": 2 }
+      ],
+      "positive_words": ["rico", "delicioso", "sabroso", "fresco", "tierno"],
+      "negative_words": ["malo", "crudo", "quemado", "rancio", "salado"]
+    },
+    "negocios": {
+      "positive_phrases": [
+        { "text": "buen servicio", "weight": 2 },
+        { "text": "excelente atencion", "weight": 2 },
+        { "text": "entrega rapida", "weight": 1.5 },
+        { "text": "atencion impecable", "weight": 2 }
+      ],
+      "negative_phrases": [
+        { "text": "mala atencion", "weight": 2 },
+        { "text": "entrega lenta", "weight": 1.5 },
+        { "text": "no responden", "weight": 1.5 }
+      ],
+      "positive_words": ["rapido", "eficiente", "cumplido", "transparente", "profesional"],
+      "negative_words": ["lento", "incumplido", "irresponsable", "estafa", "falta"]
+    }
+  }
+}

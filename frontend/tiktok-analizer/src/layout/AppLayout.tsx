@@ -1,39 +1,38 @@
 // /src/layout/AppLayout.tsx
 import React from "react";
 import { Box, Toolbar } from "@mui/material";
+import { Outlet, useLocation } from "react-router-dom";
 import { Header } from "./Header";
-import { Sidebar } from "./Sidebar";
+import { Footer } from "./Footer";
+import { appPalette } from "../theme/palette";
 
 /**
  * AppLayout
- * - Header fijo arriba
- * - Sidebar fijo a la izquierda (ancho 260)
- * - Main ocupa todo el espacio restante y tiene scroll interno
- * - Garantiza que el contenido del dashboard ocupe toda la altura de la ventana
+ * - Header global
+ * - Main con maxWidth y fondo suave
+ * - Footer simple
  */
-export const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const SIDEBAR_WIDTH = 260;
+export const AppLayout: React.FC = () => {
+  const location = useLocation();
+  const isLanding = location.pathname === "/";
 
   return (
-    <Box sx={{ display: "flex", minHeight: "100vh", bgcolor: "background.default" }}>
-      <Header sidebarWidth={SIDEBAR_WIDTH} />
-      <Sidebar width={SIDEBAR_WIDTH} />
+    <Box sx={{ minHeight: "100vh", bgcolor: "background.default", display: "flex", flexDirection: "column" }}>
+      <Header />
       <Box
         component="main"
         sx={{
           flexGrow: 1,
-          ml: `${SIDEBAR_WIDTH}px`, // deja espacio para el drawer fijo
-          pt: (theme) => theme.spacing(10), // espacio para header
-          pb: 4,
-          px: { xs: 2, md: 4 },
-          minHeight: "calc(100vh - 64px)",
-          overflow: "auto",
-          background: "linear-gradient(180deg,#f7fbff,#ffffff)",
+          pb: isLanding ? 0 : 6,
+          background: isLanding ? appPalette.landing.background : appPalette.gradients.soft,
         }}
       >
-        <Toolbar />
-        {children}
+        <Toolbar sx={{ minHeight: 72 }} />
+        <Box sx={{ px: { xs: 2, md: 4 } }}>
+          <Outlet />
+        </Box>
       </Box>
+      <Footer />
     </Box>
   );
 };

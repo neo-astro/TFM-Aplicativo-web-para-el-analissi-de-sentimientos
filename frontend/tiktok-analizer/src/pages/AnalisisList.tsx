@@ -18,6 +18,7 @@ import {
   Chip,
   Stack,
   useTheme,
+  Button,
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import VisibilityIcon from "@mui/icons-material/Visibility";
@@ -88,39 +89,58 @@ export const AnalisisList: React.FC = () => {
     setPage(0);
   };
 
+  const sentimentColor = (value: string) => {
+    if (value === "positivo") return "success";
+    if (value === "negativo") return "error";
+    return "default";
+  };
+
   return (
     <Box>
-      <Typography variant="h6" sx={{ mb: 2, fontWeight: 700 }}>
-        Mis análisis
-      </Typography>
-
-      <Paper sx={{ p: 2, mb: 3, boxShadow: "0 6px 18px rgba(20,60,120,0.04)" }}>
-        <Stack direction={{ xs: "column", sm: "row" }} justifyContent="space-between" alignItems="center" spacing={2}>
-          <TextField
-            placeholder="Buscar por nombre..."
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            size="small"
-            sx={{
-              width: { xs: "100%", sm: 360 },
-              "& .MuiInputBase-root": { background: theme.palette.mode === "light" ? "#fff" : undefined },
-            }}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <SearchIcon />
-                </InputAdornment>
-              ),
-            }}
-          />
-          <Stack direction="row" spacing={1}>
+      <Paper
+        sx={{
+          p: 3,
+          mb: 3,
+          borderRadius: 3,
+          background: "linear-gradient(135deg, rgba(30,102,245,0.12), rgba(255,255,255,0.9))",
+          border: "1px solid rgba(30,102,245,0.12)",
+          boxShadow: "0 12px 30px rgba(20,60,120,0.08)",
+        }}
+      >
+        <Stack direction={{ xs: "column", md: "row" }} justifyContent="space-between" alignItems="center" spacing={2}>
+          <Box>
+            <Typography variant="h6" sx={{ fontWeight: 700 }}>
+              Mis analisis
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              Consulta tus reportes guardados y explora resultados.
+            </Typography>
+          </Box>
+          <Stack direction={{ xs: "column", sm: "row" }} spacing={2} alignItems="center">
+            <TextField
+              placeholder="Buscar por nombre..."
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              size="small"
+              sx={{
+                width: { xs: "100%", sm: 280 },
+                "& .MuiInputBase-root": { background: theme.palette.mode === "light" ? "#fff" : undefined },
+              }}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <SearchIcon />
+                  </InputAdornment>
+                ),
+              }}
+            />
             <Chip label={`Total: ${rows.length}`} color="primary" />
             {error && <Chip label="Error al cargar" color="error" />}
           </Stack>
         </Stack>
       </Paper>
 
-      <Paper sx={{ borderRadius: 12, overflow: "hidden", boxShadow: "0 10px 30px rgba(20,60,120,0.06)" }}>
+      <Paper sx={{ borderRadius: 3, overflow: "hidden", border: "1px solid rgba(15,26,43,0.08)" }}>
         {loading ? (
           <Box sx={{ p: 6, display: "flex", justifyContent: "center" }}>
             <Typography>Cargando análisis...</Typography>
@@ -135,22 +155,27 @@ export const AnalisisList: React.FC = () => {
         ) : filtered.length === 0 ? (
           <Box sx={{ p: 6, textAlign: "center" }}>
             <Typography variant="h6" sx={{ mb: 1 }}>
-              No hay análisis aún
+              No hay analisis aun
             </Typography>
-            <Typography color="text.secondary">Crea tu primer análisis desde "Realizar análisis".</Typography>
+            <Typography color="text.secondary" sx={{ mb: 2 }}>
+              Crea tu primer analisis para ver resultados aqui.
+            </Typography>
+            <Button variant="contained" onClick={() => navigate("/dashboard/realizar")}>
+              Crear analisis
+            </Button>
           </Box>
         ) : (
           <>
             <TableContainer>
-              <Table>
+              <Table stickyHeader>
                 <TableHead>
-                  <TableRow sx={{ background: "linear-gradient(90deg, rgba(25,118,210,0.06), rgba(99,164,255,0.03))" }}>
-                    <TableCell sx={{ fontWeight: 700 }}>Nombre</TableCell>
-                    <TableCell sx={{ fontWeight: 700 }}>Fecha</TableCell>
-                    <TableCell sx={{ fontWeight: 700, textAlign: "center" }}>Total</TableCell>
-                    <TableCell sx={{ fontWeight: 700 }}>Dominio</TableCell>
-                    <TableCell sx={{ fontWeight: 700 }}>Sentimiento</TableCell>
-                    <TableCell sx={{ fontWeight: 700, textAlign: "center" }}>Acciones</TableCell>
+                  <TableRow>
+                    <TableCell sx={{ fontWeight: 700, bgcolor: "#F6F8FC" }}>Nombre</TableCell>
+                    <TableCell sx={{ fontWeight: 700, bgcolor: "#F6F8FC" }}>Fecha</TableCell>
+                    <TableCell sx={{ fontWeight: 700, textAlign: "center", bgcolor: "#F6F8FC" }}>Total</TableCell>
+                    <TableCell sx={{ fontWeight: 700, bgcolor: "#F6F8FC" }}>Dominio</TableCell>
+                    <TableCell sx={{ fontWeight: 700, bgcolor: "#F6F8FC" }}>Sentimiento</TableCell>
+                    <TableCell sx={{ fontWeight: 700, textAlign: "center", bgcolor: "#F6F8FC" }}>Acciones</TableCell>
                   </TableRow>
                 </TableHead>
 
@@ -163,19 +188,37 @@ export const AnalisisList: React.FC = () => {
                       custom={idx}
                       variants={rowVariants}
                       style={{ display: "table-row" }}
-                      whileHover={{ scale: 1.01 }}
+                      whileHover={{ scale: 1.005 }}
                     >
-                      <TableCell sx={{ py: 2 }}>{row.nombreAnalisis}</TableCell>
-                      <TableCell sx={{ py: 2 }}>{new Date(row.fecha).toLocaleString()}</TableCell>
-                      <TableCell align="center" sx={{ py: 2 }}>
-                        {row.total_comentarios}
+                      <TableCell sx={{ py: 2.5 }}>
+                        <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>
+                          {row.nombreAnalisis}
+                        </Typography>
+                        <Typography variant="caption" color="text.secondary">
+                          ID: {row.id.slice(0, 6)}
+                        </Typography>
                       </TableCell>
-                      <TableCell sx={{ py: 2 }}>{row.dominio_principal}</TableCell>
-                      <TableCell sx={{ py: 2 }}>{row.sentimiento_predominante}</TableCell>
-                      <TableCell align="center" sx={{ py: 2 }}>
-                        <IconButton size="small" onClick={() => navigate(`/dashboard/analisis/${row.id}`)} aria-label={`Ver ${row.nombreAnalisis}`}>
-                          <VisibilityIcon />
-                        </IconButton>
+                      <TableCell sx={{ py: 2.5 }}>
+                        <Typography variant="body2">{new Date(row.fecha).toLocaleString()}</Typography>
+                      </TableCell>
+                      <TableCell align="center" sx={{ py: 2.5 }}>
+                        <Chip label={row.total_comentarios} color="primary" variant="outlined" />
+                      </TableCell>
+                      <TableCell sx={{ py: 2.5 }}>
+                        <Chip label={row.dominio_principal} color="info" variant="outlined" />
+                      </TableCell>
+                      <TableCell sx={{ py: 2.5 }}>
+                        <Chip label={row.sentimiento_predominante} color={sentimentColor(row.sentimiento_predominante)} />
+                      </TableCell>
+                      <TableCell align="center" sx={{ py: 2.5 }}>
+                        <Button
+                          variant="text"
+                          size="small"
+                          onClick={() => navigate(`/dashboard/analisis/${row.id}`)}
+                          startIcon={<VisibilityIcon />}
+                        >
+                          Ver
+                        </Button>
                       </TableCell>
                     </motion.tr>
                   ))}

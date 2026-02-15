@@ -1,0 +1,40 @@
+{
+  "interes": [
+    "precio",
+    "cuanto cuesta",
+    "informacion",
+    "detalles",
+    "donde comprar",
+    "como adquirir",
+    "envio",
+    "stock",
+    "disponible"
+  ],
+  "soporte": [
+    "ayuda",
+    "problema",
+    "falla",
+    "no funciona",
+    "reclamo",
+    "garantia",
+    "devolucion",
+    "no llega",
+    "error",
+    "no responde"
+  ],
+  "apoyo": [
+    "todo mi apoyo",
+    "mi voto",
+    "estoy con",
+    "siempre contigo"
+  ],
+  "venta": [
+    "comprar",
+    "cotizar",
+    "promocion",
+    "descuento",
+    "precio final",
+    "factura",
+    "pago"
+  ]
+}
