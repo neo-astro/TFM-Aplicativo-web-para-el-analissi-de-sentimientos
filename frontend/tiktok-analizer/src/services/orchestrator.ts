@@ -20,13 +20,29 @@ export type AnalizarRequest = {
 export type AnalizarResponse = {
   total_comentarios: number;
   resumen_sentimientos?: { positivo?: number; neutral?: number; negativo?: number };
+  resumen_dominios?: Record<string, number>;
+  polarizacion?: number;
+  riesgo?: string;
+  frases_impacto?: {
+    top_positivas?: string[];
+    top_negativas?: string[];
+    top_emojis?: string[];
+  };
+  temas?: Record<string, any>[];
   resultados_detallados: {
     comentario: string;
+    comentario_normalizado?: string;
     sentimiento_modelo: "positivo" | "neutral" | "negativo";
     score_modelo: number;
+    sentimiento_transformer?: "positivo" | "neutral" | "negativo";
+    score_transformer?: number;
     scores_por_dominio: Record<string, number>;
+    dominio_principal?: string;
+    tema_id?: number;
+    tema_keywords?: string[];
     afiliacion: string[];
     sentimiento_final: "positivo" | "neutral" | "negativo";
+    matches?: Record<string, string[]>;
   }[];
 };
 
@@ -41,7 +57,7 @@ export type DatosRequest = {
 
 // axios instances (ajusta timeouts si quieres)
 const nodeApi = axios.create({ baseURL: "http://127.0.0.1:3000", timeout: 60000 });
-const pythonApi = axios.create({ baseURL: "http://localhost:8000", timeout: 60000 });
+const pythonApi = axios.create({ baseURL: "http://127.0.0.1:8000", timeout: 60000 });
 
 /**
  * Orquesta: obtiene comentarios -> analiza -> persiste datos
@@ -85,6 +101,11 @@ export async function runFullAnalysis({
     const payloadForStore: Omit<AnalizarResponse, "success"> = {
       total_comentarios: analizarData.total_comentarios,
       resumen_sentimientos: analizarData.resumen_sentimientos,
+      resumen_dominios: analizarData.resumen_dominios,
+      polarizacion: analizarData.polarizacion,
+      riesgo: analizarData.riesgo,
+      frases_impacto: analizarData.frases_impacto,
+      temas: analizarData.temas,
       resultados_detallados: analizarData.resultados_detallados,
     };
 

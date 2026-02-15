@@ -193,9 +193,23 @@ const HighlightComment = ({
   type: 'positive' | 'negative';
   onSelect: () => void;
 }) => {
-  const bgColor = type === 'positive' ? COLOR_THEME.positive[50] : COLOR_THEME.negative[50];
-  const borderColor = type === 'positive' ? COLOR_THEME.positive[200] : COLOR_THEME.negative[200];
-  const textColor = type === 'positive' ? COLOR_THEME.positive[700] : COLOR_THEME.negative[700];
+  const isNeutral = score === 0;
+  const bgColor = isNeutral
+    ? COLOR_THEME.neutral[50]
+    : type === 'positive'
+      ? COLOR_THEME.positive[50]
+      : COLOR_THEME.negative[50];
+  const borderColor = isNeutral
+    ? COLOR_THEME.neutral[200]
+    : type === 'positive'
+      ? COLOR_THEME.positive[200]
+      : COLOR_THEME.negative[200];
+  const textColor = isNeutral
+    ? COLOR_THEME.neutral[700]
+    : type === 'positive'
+      ? COLOR_THEME.positive[700]
+      : COLOR_THEME.negative[700];
+  const label = isNeutral ? 'Neutral' : type === 'positive' ? 'Más Positivo' : 'Más Negativo';
   
   return (
     <MotionBox
@@ -219,13 +233,13 @@ const HighlightComment = ({
         <CardBody>
           <Flex align="center" mb={3}>
             <Icon
-              as={type === 'positive' ? FiThumbsUp : FiThumbsDown}
+              as={isNeutral ? FiMinus : type === 'positive' ? FiThumbsUp : FiThumbsDown}
               color={textColor}
               mr={2}
               fontSize="lg"
             />
             <Badge
-              bg={type === 'positive' ? COLOR_THEME.positive[100] : COLOR_THEME.negative[100]}
+              bg={isNeutral ? COLOR_THEME.neutral[100] : type === 'positive' ? COLOR_THEME.positive[100] : COLOR_THEME.negative[100]}
               color={textColor}
               px={3}
               py={1}
@@ -234,7 +248,7 @@ const HighlightComment = ({
               fontWeight="bold"
               textTransform="uppercase"
             >
-              {type === 'positive' ? 'Más Positivo' : 'Más Negativo'}
+              {label}
             </Badge>
           </Flex>
           

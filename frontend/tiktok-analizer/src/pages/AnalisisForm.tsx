@@ -235,7 +235,7 @@ export const AnalisisForm: React.FC = () => {
         </Stack>
       </Paper>
 
-      <LoadingOverlay open={loading || crearLoading} message="Procesando análisis..." />
+      <LoadingOverlay open={loading || crearLoading} message="Creando análisis..." />
     </Box>
   );
 };
